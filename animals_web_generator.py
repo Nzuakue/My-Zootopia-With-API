@@ -1,11 +1,9 @@
-import requests
-import json
+import data_fetcher as df
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
 RESET = "\033[0;0m"
-URL = "https://api.api-ninjas.com/v1/animals"
-X_API_KEY = "kArkhiDb1WMk1lltdFoSehl8MgpS8fYBzWYg28Gz"
+
 animals_data = {}
 animal = ""
 
@@ -14,20 +12,6 @@ def load_template_file():
     """Loads a template file"""
     with open("animals_template.html") as f:
         return f.read()
-
-
-def fetch_data(animal):
-    """Fetches animals data from Ninjas API.
-
-    Args:
-        animal (str): Animal to be fetched
-    Returns (list): JSON data from Ninjas API
-    """
-    parameters = {"name": animal}
-    headers_params = {"x-api-key": X_API_KEY}
-    response = requests.get(URL, params=parameters, headers=headers_params).json()
-
-    return response
 
 
 def get_skin_types(animals_data):
@@ -86,21 +70,21 @@ def serialize_animal(animal_obj, skin_type):
     return output
 
 
-def create_content(animals_data, skin_type):
+def create_content(data, skin_type):
     """
     Creates HTML content for animals
 
     Args:
-        animals_data (list): Animals data used to create the content
+        data (list): Animals data used to create the content
         skin_type (str): Skin type of the animal object
 
     Returns (str): content for HTML template
     """
     content = ""
-    if len(animals_data) == 0:
+    if len(data) == 0:
         content = f"<h2 style=\"text-align: center ;\">The animal \"{animal}\" doesn't exist.</h2>"
     else:
-        for animal_data in animals_data:
+        for animal_data in data:
             content += serialize_animal(animal_data, skin_type)
 
     return content
@@ -127,7 +111,7 @@ def main():
             animal = input(f"{GREEN}Enter animal name: {RESET}")
             if animal == "":
                 raise ValueError(f"{RED}Input is empty{RESET}")
-            animals_data = fetch_data(animal)
+            animals_data = df.fetch_data(animal)
             break
         except ValueError as e:
             print(e)
@@ -151,7 +135,6 @@ def main():
 
     create_template(create_content(animals_data, skin_type))
     print("Website was successfully generated to the file animals.html.")
-
 
 
 if __name__ == "__main__":
